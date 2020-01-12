@@ -8,8 +8,6 @@
 
 int connCount = 2;
 bool serverStatus = 1;
-extern int client_fd;
-extern ApplicationLayer *clients;
 
 void* connHandle(void *c_FD)
 {
@@ -42,7 +40,7 @@ void* Dispatcher(void* arg)
 
 void* Publish(void* arg)
 {
-    Publisher filePublishing;
+    Publisher filePublishing(*(int*)arg);
 
 
 

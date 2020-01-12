@@ -4,7 +4,7 @@ class Publisher
 
 
     public:
-
+        Publisher(int);
 
 
 };
