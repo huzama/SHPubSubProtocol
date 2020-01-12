@@ -40,7 +40,7 @@ void* Dispatcher(void* arg)
 
 void* Publish(void* arg)
 {
-    Publisher filePublishing(*(int*)arg);
+    Broker filePublishing(*(int*)arg);
 
 
 
