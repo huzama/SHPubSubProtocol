@@ -1,0 +1,10 @@
+class Publisher
+{
+    private:
+
+
+    public:
+
+
+
+};
