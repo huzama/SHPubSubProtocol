@@ -31,4 +31,5 @@ Broker::Broker(int topic)
 
             return;
         }
+    }
 }

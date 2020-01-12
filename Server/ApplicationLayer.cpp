@@ -129,7 +129,10 @@ void ApplicationLayer::updateFile(char Topic, char* Data)
     std::fstream file;
 
     file.open(File.c_str(), std::ios::app);
+    
+    //  Sync Here
     file << Data + '\n';
+    
     file.close();
 }
 

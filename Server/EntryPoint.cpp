@@ -1,9 +1,9 @@
+#include "Broker.hpp"
 #include "Server.hpp"
 #include "ApplicationLayer.hpp"
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
-#include "Publisher.hpp"
 
 
 int connCount = 2;
@@ -40,9 +40,7 @@ void* Dispatcher(void* arg)
 
 void* Publish(void* arg)
 {
-    Broker filePublishing(*(int*)arg);
-
-
+    Broker filePublishing(*((int*)arg));
 
     /*int TopicNo = *(int*)arg;    
     
@@ -51,8 +49,6 @@ void* Publish(void* arg)
 
     std::ifstream file;
     
-    
-
     file.open(File.c_str());
 
     file.close();
@@ -71,9 +67,12 @@ void* Topics(void* arg)
 }
 
 
+int Broker::MuntahaDitcher = 1;
+
 int main(int argc, char *argv[])
 {
     pthread_t thread_id[100];
+
 
     pthread_create(&thread_id[0], NULL, Dispatcher, (void*)&thread_id);
     pthread_create(&thread_id[1], NULL, Topics, (void*)&thread_id);
