@@ -6,7 +6,7 @@
 #include <string.h>
 #include "Server.hpp"
 
-#define IPaddress "172.17.62.67"
+#define IPaddress "127.0.0.1"
 
 Server::Server(int PORT)
 {

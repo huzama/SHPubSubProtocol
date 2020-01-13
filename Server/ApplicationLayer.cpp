@@ -108,7 +108,8 @@ void ApplicationLayer::Auth(char ClientID)
             return;
         }
     }
-    this->User = 0;
+
+
 }
 
 void ApplicationLayer::topicSelection(char* DATA)
