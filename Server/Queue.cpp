@@ -1,9 +1,15 @@
 #include "Queue.hpp"
+#include <iostream>
+
+pthread_mutex_t Node::queueLock;
+
 
 Node::Node()
 {
-}
+	if(pthread_mutex_init(&queueLock, NULL) != 0)
+	    std::cout << "Queue Mutex init Failed" << std::endl;
 
+}
 
 Node::Node(Node & toCopy)
 {
@@ -21,11 +27,21 @@ Node::Node(Node & toCopy)
 	}
 }
 
+void nextNode(Node*& queue)
+{
+	auto deleteMe = queue;
+	
+	pthread_mutex_lock(&Node::queueLock);
+	queue = queue->Next;
+	pthread_mutex_unlock(&Node::queueLock);
+	
+	delete deleteMe;
+}
+
 
 Node::~Node()
 {
-	if (this->Next)
-		delete this->Next;
+	pthread_mutex_destroy(&queueLock);
 }
 
 
@@ -46,11 +62,17 @@ void InsertAtStarts(Node*& Head, Node* Start)
 }
 
 void addInQueue(Node *& Queue, Node* queueNode)
-{
+{    
+	std::cout << "Added in queue" << std::endl;
+
+	pthread_mutex_lock(&Node::queueLock);
 	if(!Queue)
 		Queue = queueNode;
 	else
 		lastNode(Queue)->Next = queueNode;
+
+    pthread_mutex_lock(&Node::queueLock);
+
 }
 
 void InsertAtN(Node * Head, Node* Middle, int N)

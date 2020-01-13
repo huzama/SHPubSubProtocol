@@ -10,7 +10,6 @@ class ApplicationLayer
     
     public:
         static pthread_mutex_t objectLock;
-        static pthread_mutex_t queueLock;
 
     private:
         char s_Buffer[PacketSize];

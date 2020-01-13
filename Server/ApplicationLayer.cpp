@@ -15,7 +15,6 @@ extern Node *updateQueue;
 extern ApplicationLayer *userObjects[26];
 
 pthread_mutex_t ApplicationLayer::objectLock;
-pthread_mutex_t ApplicationLayer::queueLock;
 
 
 void ApplicationLayer::sendPacket(char PacketID, char ClientID, char Topic, char* Data)
@@ -36,9 +35,6 @@ ApplicationLayer::ApplicationLayer(int fd)
 {
     if(pthread_mutex_init(&objectLock, NULL) != 0)
         std::cout << "Object Mutex init Failed" << std::endl;
-    
-    if(pthread_mutex_init(&queueLock, NULL) != 0)
-        std::cout << "Queue Mutex init Failed" << std::endl;
 }
 
 
@@ -83,7 +79,6 @@ end:
 ApplicationLayer::~ApplicationLayer()
 {
     pthread_mutex_destroy(&objectLock);
-    pthread_mutex_destroy(&queueLock);
     close(userConnection);
     ConnectedUsers--;
     std::cout << "Client Disconnected!"<<std::endl;
@@ -144,9 +139,7 @@ void ApplicationLayer::updateFile(char Topic, char* Data)
     Node *temp = new Node;
     temp->Topic = Topic;
     
-    pthread_mutex_lock(&queueLock);
     addInQueue(updateQueue, temp);
-    pthread_mutex_lock(&queueLock);
 
     file.close();
 }

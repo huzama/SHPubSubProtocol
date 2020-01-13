@@ -1,7 +1,11 @@
 #pragma once
+#include <pthread.h>
 
 class Node
 {
+public:
+	static pthread_mutex_t queueLock;
+
 private:
 	int timeStamp;
 
@@ -19,3 +23,5 @@ public:
 };
 
 void addInQueue(Node *& Queue, Node* queueNode);
+void nextNode(Node*& queue);
+

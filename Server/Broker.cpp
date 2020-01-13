@@ -31,7 +31,7 @@ void Broker::queueHandler()
             for(int i = 0; i < 26; i++)
                 getUserConnection(userofTopic[i]);
 
-            updateQueue = updateQueue->Next;
+            nextNode(updateQueue);
         }
 
 
