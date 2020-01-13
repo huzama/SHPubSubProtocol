@@ -1,12 +1,19 @@
+#pragma once
+
+#include "Queue.hpp"
+#include "ApplicationLayer.hpp"
+
 class Broker
 {
     private:
-    int Topic;
-    char users[26]; 
-    int noUsers = 0;
-    
+    static const int PacketSize = sizeof(PacketStructure);
+    char s_Buffer[PacketSize];
+
+
     
     public:
-        static int MuntahaDitcher;  
-        Broker(int);
+        Broker();
+        void queueHandler();
+        char* getUsers(char);
+        int getUserConnection(char);
 };

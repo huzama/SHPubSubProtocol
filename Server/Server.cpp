@@ -2,10 +2,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 #include <string.h>
 #include "Server.hpp"
 
-#define IPaddress "127.0.0.1"
+#define IPaddress "172.17.62.67"
 
 Server::Server(int PORT)
 {
@@ -49,4 +50,9 @@ int Server::Connection()
 	} 
 	
 	return ConnectedFD;
+}
+
+Server::~Server()
+{
+	close(socketFD);
 }

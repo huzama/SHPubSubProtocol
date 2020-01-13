@@ -3,6 +3,7 @@
 #include "ApplicationLayer.hpp"
 #include <iostream>
 #include <fstream>
+#include "Queue.hpp"
 #include <unistd.h>
 
 
@@ -29,6 +30,7 @@ void* Dispatcher(void* arg)
 
     pthread_t *thread_id = (pthread_t*)arg;
     std::cout << "Waiting for incoming Connections..." << std::endl;
+    
     while(serverStatus)
     {
         int ClientConn = myServer.Connection();
@@ -38,36 +40,15 @@ void* Dispatcher(void* arg)
     return 0;
 }
 
-void* Publish(void* arg)
-{
-    Broker filePublishing(*((int*)arg));
-
-    /*int TopicNo = *(int*)arg;    
-    
-    std::string File = "UserData/";
-    File = File + std::to_string(TopicNo);
-
-    std::ifstream file;
-    
-    file.open(File.c_str());
-
-    file.close();
-*/
-    return 0;
-}
-
 void* Topics(void* arg)
 {
-    pthread_t thread_id;
-    for(int i = 0; i < 10; i++)
-    {
-        pthread_create(&thread_id, NULL, Publish, (void*)&i);
-    }
+    Broker publisher;
+    publisher.queueHandler();
+
     return 0;
 }
 
 
-int Broker::MuntahaDitcher = 1;
 
 int main(int argc, char *argv[])
 {
@@ -78,6 +59,7 @@ int main(int argc, char *argv[])
     pthread_create(&thread_id[1], NULL, Topics, (void*)&thread_id);
     
     std::cin >> serverStatus;
+    sleep(2);
 
     return 0;
 }

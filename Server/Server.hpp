@@ -1,3 +1,6 @@
+#pragma once
+
+
 #include <netinet/ip.h>
 
 
@@ -11,5 +14,5 @@ public:
 
     Server(int);
 	int Connection();
-
+	~Server();
 };

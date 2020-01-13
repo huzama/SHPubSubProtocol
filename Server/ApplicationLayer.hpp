@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../PacketStructure.hpp"
 
 class ApplicationLayer
@@ -9,7 +11,7 @@ class ApplicationLayer
     char r_Buffer[PacketSize];
     int c_fd;
     char Topics[10];
-    char User = 0;
+    char User = 1;
     
     
     public:

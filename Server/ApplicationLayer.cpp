@@ -5,13 +5,18 @@
 #include <unistd.h>
 #include <iostream>
 #include <fstream>
+#include "Broker.hpp"
 #include <string.h>
 #include <chrono>
 #include <stdio.h>
 
 extern int connCount;
-int client_fd[100];
-ApplicationLayer *clients[100];
+extern bool serverStatus;
+
+
+extern Node *updates;    
+extern ApplicationLayer *users[26];
+
 
 
 void ApplicationLayer::sendPacket(char PacketID, char ClientID, char Topic, char* Data)
@@ -30,8 +35,6 @@ void ApplicationLayer::sendPacket(char PacketID, char ClientID, char Topic, char
 ApplicationLayer::ApplicationLayer(int fd)
     :c_fd(fd)
 {
-    client_fd[connCount] = fd;
-    clients[connCount] = this;
 }
 
 
@@ -39,7 +42,7 @@ void ApplicationLayer::ClientHandling()
 {
     PacketStructure *Packet = (PacketStructure*)r_Buffer;
 
-    while(1)
+    while(serverStatus && User)
     {
         if(recv(c_fd, r_Buffer, PacketSize, 0) <= 0)
         {
@@ -48,12 +51,9 @@ void ApplicationLayer::ClientHandling()
         }
         else
         {   
-            std::cout << "Data Recived from "<< Packet->ClientID << std::endl;
-    
-
             switch(Packet->PacketID)
             {
-                case 0:
+                case '0':
                     Auth(Packet->ClientID);
                     break;
                 case '1':
@@ -85,10 +85,11 @@ ApplicationLayer::~ApplicationLayer()
 
 void ApplicationLayer::Auth(char ClientID)
 {
-    if (this->User)
+    if (this->User != 1)
         return;
 
-    std::ifstream file("UserData/Users");
+    std::fstream file;
+    file.open("UserData/Users");
     std::string User, Password;
 
     while(getline(file, User, ':'))
@@ -97,20 +98,17 @@ void ApplicationLayer::Auth(char ClientID)
         
         if(User[0] == ClientID)
         {
+            std::cout << "Data Recived from "<< ClientID << std::endl;
             this->User = User[0]; 
             
-            /*for(int i = 0, j = 0; i < Topic.size(); i++)
-                if(Topic[i] != ' ')
-                {
-                        Topics[j] = Topic[i];
-                        j++;
-                }*/
-            
+            users[0] = this;
+
             file.close();
 
             return;
         }
     }
+    this->User = 0;
 }
 
 void ApplicationLayer::topicSelection(char* DATA)
@@ -121,18 +119,18 @@ void ApplicationLayer::topicSelection(char* DATA)
 
 void ApplicationLayer::updateFile(char Topic, char* Data)
 {
-    std::string File = "UserData/";
-    File = File + Topic; 
-
     auto timeStamp = std::chrono::system_clock::now();
-    
-    std::fstream file;
 
-    file.open(File.c_str(), std::ios::app);
-    
+    std::string Path = "UserData/";
+    Path = Path + Topic; 
+    std::fstream file;
+    file.open(Path.c_str(), std::ios::app);
+
     //  Sync Here
     file << Data + '\n';
-    
+    Node * temp = new Node;
+    temp->Topic = Topic;
+    updates = temp;
     file.close();
 }
 
