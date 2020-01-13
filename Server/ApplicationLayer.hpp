@@ -1,18 +1,22 @@
 #pragma once
 
+#include <pthread.h> 
 #include "../PacketStructure.hpp"
 
 class ApplicationLayer
 {
+    private:
+        static const int PacketSize = sizeof(PacketStructure);
+    
+    public:
+        static pthread_mutex_t objectLock;
+        static pthread_mutex_t queueLock;
 
     private:
-    static const int PacketSize = sizeof(PacketStructure);
-    char s_Buffer[PacketSize];
-    char r_Buffer[PacketSize];
-    int c_fd;
-    char Topics[10];
-    char User = 1;
-    
+        char s_Buffer[PacketSize];
+        char r_Buffer[PacketSize];
+        int userConnection;
+        char userID;
     
     public:
         ApplicationLayer(int fd);

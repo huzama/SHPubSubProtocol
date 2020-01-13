@@ -1,6 +1,5 @@
 #pragma once
 
-
 class Node
 {
 private:
@@ -15,7 +14,8 @@ public:
 	Node* Prev = 0;
 
 	Node();
-	Node(int);
 	Node(Node &);
 	~Node();
 };
+
+void addInQueue(Node *& Queue, Node* queueNode);

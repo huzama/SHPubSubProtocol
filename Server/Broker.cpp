@@ -7,45 +7,13 @@
 #include <sys/socket.h>
 #include <iostream>
 
-
-Node *updates;    
-ApplicationLayer *users[26];
+Node *updateQueue;    
+ApplicationLayer *userObjects[26];
 extern int serverStatus;
 
 Broker::Broker()
 {
-    /*
-    std::fstream topicUsers("Files/Topics");
-    
-    
-    std::string f_Topic, f_User;
-
-    while(getline(topicUsers, f_Topic, ':'))
-    {
-        getline(topicUsers , f_User);
-        
-        if(f_Topic[0] == Topic)
-        {
-            
-            for(int i = 0, j = 0; i < f_User.size(); i++)
-                if(f_User[i] != ' ')
-                {
-                        users[j] = f_User[i];
-                        j++;
-                }
-            
-            topicUsers.close();
-
-            return;
-        }
-    }
-    */
-
-
-
 }
-
-
 
 void Broker::queueHandler()
 {
@@ -53,9 +21,9 @@ void Broker::queueHandler()
     
     while(serverStatus)
     {
-       while(updates && serverStatus)
+       while(updateQueue && serverStatus)
         {
-            userofTopic = getUsers(updates->Topic);
+            userofTopic = getUsers(updateQueue->Topic);
           
             if(!userofTopic)
                 continue;
@@ -63,13 +31,13 @@ void Broker::queueHandler()
             for(int i = 0; i < 26; i++)
                 getUserConnection(userofTopic[i]);
 
-            updates = updates->Next;
+            updateQueue = updateQueue->Next;
         }
 
 
         sleep(0.5);
     }
-
+    delete userofTopic;
 }
 
 char* Broker::getUsers(char Topic)
@@ -108,10 +76,10 @@ char* Broker::getUsers(char Topic)
 int Broker::getUserConnection(char user) // Can be done by Dictionary
 {
     for(int i = 0; i < 26; i++)
-        if(users[i] && users[i]->getUser() == user)
+        if(userObjects[i] && userObjects[i]->getUser() == user)
         {
             char test[] = "Hor sunao Theek Thak oo";
-            users[i]->sendPacket('2', user, '0', test);
+            userObjects[i]->sendPacket('2', user, '0', test);
         }
         
     return 0;

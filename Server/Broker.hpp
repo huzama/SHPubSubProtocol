@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Queue.hpp"
 #include "ApplicationLayer.hpp"
+#include "Queue.hpp"
 
 class Broker
 {
@@ -9,8 +9,6 @@ class Broker
     static const int PacketSize = sizeof(PacketStructure);
     char s_Buffer[PacketSize];
 
-
-    
     public:
         Broker();
         void queueHandler();

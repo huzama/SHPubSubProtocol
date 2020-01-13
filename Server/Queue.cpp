@@ -1,37 +1,13 @@
 #include "Queue.hpp"
-#include<iostream>
-int MemoryCheck = 0;
 
 Node::Node()
-	:Data(MemoryCheck)
 {
-	MemoryCheck++;
 }
 
-Node::Node(int No)
-	: Data(MemoryCheck)
-{
-	MemoryCheck++;
-	
-	if (No <= 0)
-		return;
-	No--;
-
-	Node* Temp = this, *Prev = this;
-
-	while (No--)
-	{
-		Temp->Next = new Node;
-		Temp = Temp->Next;
-		Temp->Prev = Prev;
-		Prev = Temp;
-	}
-}
 
 Node::Node(Node & toCopy)
 {
 	Node *To = this, *From = &toCopy;
-	MemoryCheck++;
 
 	To->Data = From->Data;
 
@@ -48,21 +24,12 @@ Node::Node(Node & toCopy)
 
 Node::~Node()
 {
-	MemoryCheck--;
 	if (this->Next)
 		delete this->Next;
 }
 
-void Traversion_F(Node* Head)
-{
-	while (Head)
-	{
-		std::cout << Head->Data << std::endl;
-		Head = Head->Next;
-	}
-}
 
-Node* EndingPointer(Node* Head)
+Node* lastNode(Node* Head)
 {
 	while (Head->Next)
 		Head = Head->Next;
@@ -70,15 +37,6 @@ Node* EndingPointer(Node* Head)
 	return Head;
 }
 
-Node* Traversion_B(Node* Head)
-{
-	while (Head)
-	{
-		std::cout << Head->Data << std::endl;
-		Head = Head->Prev;
-	}
-	return Head;
-}
 
 void InsertAtStarts(Node*& Head, Node* Start)
 {
@@ -87,11 +45,12 @@ void InsertAtStarts(Node*& Head, Node* Start)
 	Head = Start;
 }
 
-void InsertAtEnd(Node *& Back, Node* End)
+void addInQueue(Node *& Queue, Node* queueNode)
 {
-	End->Prev = Back;
-	Back->Next = End;
-	Back = End;
+	if(!Queue)
+		Queue = queueNode;
+	else
+		lastNode(Queue)->Next = queueNode;
 }
 
 void InsertAtN(Node * Head, Node* Middle, int N)

@@ -1,8 +1,6 @@
 #pragma once
 
-
 #include <netinet/ip.h>
-
 
 class Server
 {

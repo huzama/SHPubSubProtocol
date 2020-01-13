@@ -1,6 +1,5 @@
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <pthread.h> 
 #include "ApplicationLayer.hpp"
 #include <unistd.h>
 #include <iostream>
@@ -10,13 +9,13 @@
 #include <chrono>
 #include <stdio.h>
 
-extern int connCount;
+extern int ConnectedUsers;
 extern bool serverStatus;
+extern Node *updateQueue;    
+extern ApplicationLayer *userObjects[26];
 
-
-extern Node *updates;    
-extern ApplicationLayer *users[26];
-
+pthread_mutex_t ApplicationLayer::objectLock;
+pthread_mutex_t ApplicationLayer::queueLock;
 
 
 void ApplicationLayer::sendPacket(char PacketID, char ClientID, char Topic, char* Data)
@@ -28,13 +27,18 @@ void ApplicationLayer::sendPacket(char PacketID, char ClientID, char Topic, char
     if(Data)
         memcpy(Packet->Data,Data, DataSize);
 
-    send(c_fd, Packet, PacketSize, 0);
+    send(userConnection, Packet, PacketSize, 0);
 }
 
 
 ApplicationLayer::ApplicationLayer(int fd)
-    :c_fd(fd)
+    :userConnection(fd)
 {
+    if(pthread_mutex_init(&objectLock, NULL) != 0)
+        std::cout << "Object Mutex init Failed" << std::endl;
+    
+    if(pthread_mutex_init(&queueLock, NULL) != 0)
+        std::cout << "Queue Mutex init Failed" << std::endl;
 }
 
 
@@ -42,9 +46,9 @@ void ApplicationLayer::ClientHandling()
 {
     PacketStructure *Packet = (PacketStructure*)r_Buffer;
 
-    while(serverStatus && User)
+    while(serverStatus && userID != -1)
     {
-        if(recv(c_fd, r_Buffer, PacketSize, 0) <= 0)
+        if(recv(userConnection, r_Buffer, PacketSize, 0) <= 0)
         {
             perror("Reciving Failed");
             break;
@@ -78,14 +82,16 @@ end:
 
 ApplicationLayer::~ApplicationLayer()
 {
-    close(c_fd);
-    connCount--;
-    std::cout<< "Client Disconnected!"<<std::endl;
+    pthread_mutex_destroy(&objectLock);
+    pthread_mutex_destroy(&queueLock);
+    close(userConnection);
+    ConnectedUsers--;
+    std::cout << "Client Disconnected!"<<std::endl;
 }
 
 void ApplicationLayer::Auth(char ClientID)
 {
-    if (this->User != 1)
+    if (this->userID)
         return;
 
     std::fstream file;
@@ -98,19 +104,26 @@ void ApplicationLayer::Auth(char ClientID)
         
         if(User[0] == ClientID)
         {
-            std::cout << "Data Recived from "<< ClientID << std::endl;
-            this->User = User[0]; 
+            static int connectedClients = 0;
+            std::cout << "Connection Established with: "<< ClientID << std::endl;
+            this->userID = ClientID; 
             
-            users[0] = this;
+            
+            // Saving this pointer of clients in a Global Array
+            pthread_mutex_lock(&objectLock);
+            userObjects[connectedClients] = this;
+            connectedClients++;
+            pthread_mutex_unlock(&objectLock);
+
 
             file.close();
-
             return;
         }
     }
 
-
+    this->userID = -1;
 }
+
 
 void ApplicationLayer::topicSelection(char* DATA)
 {
@@ -126,16 +139,19 @@ void ApplicationLayer::updateFile(char Topic, char* Data)
     Path = Path + Topic; 
     std::fstream file;
     file.open(Path.c_str(), std::ios::app);
-
-    //  Sync Here
     file << Data + '\n';
-    Node * temp = new Node;
+
+    Node *temp = new Node;
     temp->Topic = Topic;
-    updates = temp;
+    
+    pthread_mutex_lock(&queueLock);
+    addInQueue(updateQueue, temp);
+    pthread_mutex_lock(&queueLock);
+
     file.close();
 }
 
 char ApplicationLayer::getUser()
 {
-    return User;
+    return userID;
 }

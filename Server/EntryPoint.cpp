@@ -3,21 +3,19 @@
 #include "ApplicationLayer.hpp"
 #include <iostream>
 #include <fstream>
-#include "Queue.hpp"
 #include <unistd.h>
 
 
-int connCount = 2;
+int ConnectedUsers = 2;
 bool serverStatus = 1;
 
 void* connHandle(void *c_FD)
 {
-    connCount++;
+    ConnectedUsers++;
 
-    int *Client = (int*)c_FD;
-    std::cout << "Client "<< connCount <<" connected!"<<std::endl;
+    std::cout << "Client "<< ConnectedUsers <<" connected!"<<std::endl;
     
-    ApplicationLayer connection(*Client);
+    ApplicationLayer connection(*(int*)c_FD);
     
     connection.ClientHandling();
     
@@ -34,7 +32,7 @@ void* Dispatcher(void* arg)
     while(serverStatus)
     {
         int ClientConn = myServer.Connection();
-        pthread_create(&thread_id[connCount], NULL, connHandle, (void*)&ClientConn);
+        pthread_create(&thread_id[ConnectedUsers], NULL, connHandle, (void*)&ClientConn);
     }
 
     return 0;
