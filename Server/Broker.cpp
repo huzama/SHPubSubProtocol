@@ -18,7 +18,6 @@ Broker::Broker()
 void Broker::queueHandler()
 {
     char* userofTopic = 0;
-    
     while(serverStatus)
     {
        while(updateQueue && serverStatus)
@@ -29,15 +28,23 @@ void Broker::queueHandler()
                 continue;
 
             for(int i = 0; i < 26; i++)
-                getUserConnection(userofTopic[i]);
-
+            {
+                auto userConn = getUserConnection(userofTopic[i]);
+                
+                if(userConn)
+                    userConn->sendPacket('2', userConn->getUser(),updateQueue->Topic, updateQueue->Data);
+            }
             nextNode(updateQueue);
         }
-
 
         sleep(0.5);
     }
     delete userofTopic;
+}
+
+char* Broker::getUpdate(char Topic)
+{
+    return 0;
 }
 
 char* Broker::getUsers(char Topic)
@@ -55,8 +62,6 @@ char* Broker::getUsers(char Topic)
         
         if(f_Topic[0] == Topic)
         {
-            std::cout << f_User << std::endl;
-
             for(int i = 0, j = 0; i < f_User.size(); i++)
                 if(f_User[i] != ' ')
                 {
@@ -73,14 +78,11 @@ char* Broker::getUsers(char Topic)
 }
 
 
-int Broker::getUserConnection(char user) // Can be done by Dictionary
+ApplicationLayer* Broker::getUserConnection(char user)
 {
     for(int i = 0; i < 26; i++)
         if(userObjects[i] && userObjects[i]->getUser() == user)
-        {
-            char test[] = "Hor sunao Theek Thak oo";
-            userObjects[i]->sendPacket('2', user, '0', test);
-        }
+            return userObjects[i];
         
     return 0;
 }

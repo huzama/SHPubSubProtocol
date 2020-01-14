@@ -13,5 +13,7 @@ class Broker
         Broker();
         void queueHandler();
         char* getUsers(char);
-        int getUserConnection(char);
+        ApplicationLayer* getUserConnection(char);
+        char* getUpdate(char Topic);
+
 };

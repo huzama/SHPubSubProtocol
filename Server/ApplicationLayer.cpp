@@ -42,7 +42,7 @@ void ApplicationLayer::ClientHandling()
 {
     PacketStructure *Packet = (PacketStructure*)r_Buffer;
 
-    while(serverStatus && userID != -1)
+    while(serverStatus)
     {
         if(recv(userConnection, r_Buffer, PacketSize, 0) <= 0)
         {
@@ -60,7 +60,7 @@ void ApplicationLayer::ClientHandling()
                     topicSelection(Packet->Data);
                     break;
                 case '2':
-                    updateFile(Packet->Topic, Packet->Data);
+                    saveUpdate(Packet->Topic, Packet->Data);
                     break;
                 case '3':
                     goto end; 
@@ -126,22 +126,22 @@ void ApplicationLayer::topicSelection(char* DATA)
 
 }
 
-void ApplicationLayer::updateFile(char Topic, char* Data)
+void ApplicationLayer::saveUpdate(char Topic, char* Data)
 {
-    auto timeStamp = std::chrono::system_clock::now();
-
-    std::string Path = "UserData/";
+    /*std::string Path = "UserData/";
     Path = Path + Topic; 
     std::fstream file;
     file.open(Path.c_str(), std::ios::app);
     file << Data + '\n';
-
+*/
     Node *temp = new Node;
     temp->Topic = Topic;
+
+    memcpy(temp->Data, Data, DataSize);
     
     addInQueue(updateQueue, temp);
 
-    file.close();
+    //file.close();
 }
 
 char ApplicationLayer::getUser()
