@@ -5,14 +5,34 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <iostream>
+#include <fstream>
 #include "../PacketStructure.hpp"
 
+#define IP "192.168.43.181"
 
-#define IP "127.0.0.1"
+int Client::packetSize  = sizeof(PacketStructure);
+int socketFD;
+
+void* Client::RecivingPacket(void* arg)
+{	char r_Buffer[Client::packetSize];
+	pthread_t *thread_id = (pthread_t*)arg;
+	PacketStructure *Packet = (PacketStructure*)r_Buffer;
+		while(1)
+	{
+		if(recv(socketFD,r_Buffer,Client::packetSize,0)<=0)
+		{
+            perror("Reciving Failed");
+            break;
+        }
+		 
+		std::cout<<"message recieved: "<< Packet->Data <<std::endl;
+	}  
+	return NULL;
+	
+}
 
 void Client::sendPacket(char PacktID, char ClientID, char Topic, char* DATA)
-{
-    
+{    
     const int SizeofPacket = sizeof(PacketStructure);
     char Packet[SizeofPacket];
 	
@@ -22,14 +42,13 @@ void Client::sendPacket(char PacktID, char ClientID, char Topic, char* DATA)
 	Modificaton->ClientID = ClientID;
 	Modificaton->Topic = Topic;
 
-    memcpy(Modificaton->Data, DATA, DataSize);
-
+   if(DATA) 
+   	memcpy(Modificaton->Data, DATA, DataSize);
     send(socketFD, Packet, SizeofPacket, 0);
 }
 
 Client::Client(int PORT)
 {
-
 	socketFD = socket(AF_INET,SOCK_STREAM,0);
 	
 	if(socketFD == -1)
@@ -48,27 +67,47 @@ Client::Client(int PORT)
 		perror("\nConnection Failed \n"); 
 	    exit(EXIT_FAILURE); 
 	}
-
+	pthread_t thread_id;
+    pthread_create(&thread_id, NULL, &Client::RecivingPacket, (void*)thread_id);
     SendCredentials();
 }
 
 void Client::SendCredentials()
 {
 
-    char DATA[DataSize] = "Tayyaba Pagal HA";
-    sendPacket(0, GetUserID(),  '0', DATA);
+   //char DATA[DataSize] = "check";
+    sendPacket('0', GetUserID(),  '0', DATA);
+	InputPacket();
 
 }
 
+void Client::InputPacket()
+{
+	std::cout<<"Enter Topic To Update"<<std::endl;
+	std::cin>>topic;
+    std::cout<<"enter updated data"<<std::endl;
+	std::cin>>DATA;
+	sendPacket('2', GetUserID(), topic,DATA );
+}
 
+void Client::CloseConnection()
+{
+	sendPacket('3', GetUserID(), '0',0 );
+}
 
 char Client::GetUserID()
 {
-  return 'D';   
+ 	std::fstream file;
+    file.open("GetUserID");
+    std::string User;
+    getline(file, User, ':');
+	char *Users = new char [User.length()+1];
+	strcpy (Users, User.c_str());
+	return *Users;
 }
 
 Client::~Client()
 {
-	sleep(1);
+	sleep(15);
     close(socketFD);
 }

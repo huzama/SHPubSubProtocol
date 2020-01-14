@@ -51,6 +51,7 @@ void ApplicationLayer::ClientHandling()
         }
         else
         {   
+            std::cout << r_Buffer << std::endl;
             switch(Packet->PacketID)
             {
                 case '0':
@@ -75,17 +76,13 @@ end:
     return;
 }   
 
-void ApplicationLayer::deleteObject()
+
+ApplicationLayer::~ApplicationLayer()
 {
     pthread_mutex_destroy(&objectLock);
     close(userConnection);
     ConnectedUsers--;
     std::cout << "Client Disconnected!"<<std::endl;
-}
-
-ApplicationLayer::~ApplicationLayer()
-{
-    deleteObject();
 }
 
 void ApplicationLayer::Auth(char ClientID)

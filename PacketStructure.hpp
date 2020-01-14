@@ -1,4 +1,4 @@
-#define DataSize 1024
+#define DataSize 100
 
 struct PacketStructure
 {

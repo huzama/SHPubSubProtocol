@@ -25,7 +25,6 @@ class ApplicationLayer
         char getUser();
         void Auth(char);
         void topicSelection(char*);
-        void deleteObject();
         void saveUpdate(char, char*);
 
         ~ApplicationLayer();

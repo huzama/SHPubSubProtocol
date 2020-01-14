@@ -62,10 +62,6 @@ int main(int argc, char *argv[])
     
     std::cin >> serverStatus;
     
-    for(int i = 0; i < 26; i++)
-        if(userObjects[i])
-            userObjects[i]->deleteObject();
-
     std::cout << ConnectedUsers <<std::endl;
 
     sleep(1);
