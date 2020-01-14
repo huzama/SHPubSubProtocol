@@ -5,7 +5,7 @@
 #include <fstream>
 #include <unistd.h>
 
-
+extern ApplicationLayer *userObjects[26];
 int ConnectedUsers = 2;
 bool serverStatus = 1;
 
@@ -22,11 +22,13 @@ void* connHandle(void *c_FD)
     return 0;
 }
 
-void* Dispatcher(void* arg)
+void* clientDispatcher(void* arg)
 {
     Server myServer(5656);
 
     pthread_t *thread_id = (pthread_t*)arg;
+
+
     std::cout << "Waiting for incoming Connections..." << std::endl;
     
     while(serverStatus)
@@ -40,6 +42,8 @@ void* Dispatcher(void* arg)
 
 void* Topics(void* arg)
 {
+    pthread_t *thread_id = (pthread_t*)arg;
+
     Broker publisher;
     publisher.queueHandler();
 
@@ -53,11 +57,17 @@ int main(int argc, char *argv[])
     pthread_t thread_id[100];
 
 
-    pthread_create(&thread_id[0], NULL, Dispatcher, (void*)&thread_id);
-    pthread_create(&thread_id[1], NULL, Topics, (void*)&thread_id);
+    pthread_create(&thread_id[0], NULL, clientDispatcher, (void*)thread_id);
+    pthread_create(&thread_id[1], NULL, Topics, (void*)thread_id);
     
     std::cin >> serverStatus;
-    sleep(2);
+    
+    for(int i = 0; i < 26; i++)
+        if(userObjects[i])
+            userObjects[i]->deleteObject();
 
+    std::cout << ConnectedUsers <<std::endl;
+
+    sleep(1);
     return 0;
 }

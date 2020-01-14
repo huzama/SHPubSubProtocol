@@ -41,8 +41,8 @@ ApplicationLayer::ApplicationLayer(int fd)
 void ApplicationLayer::ClientHandling()
 {
     PacketStructure *Packet = (PacketStructure*)r_Buffer;
-
-    while(serverStatus)
+    
+    while(serverStatus && userID != -1)
     {
         if(recv(userConnection, r_Buffer, PacketSize, 0) <= 0)
         {
@@ -75,13 +75,17 @@ end:
     return;
 }   
 
-
-ApplicationLayer::~ApplicationLayer()
+void ApplicationLayer::deleteObject()
 {
     pthread_mutex_destroy(&objectLock);
     close(userConnection);
     ConnectedUsers--;
     std::cout << "Client Disconnected!"<<std::endl;
+}
+
+ApplicationLayer::~ApplicationLayer()
+{
+    deleteObject();
 }
 
 void ApplicationLayer::Auth(char ClientID)
