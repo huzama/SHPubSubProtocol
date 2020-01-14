@@ -41,7 +41,7 @@ ApplicationLayer::ApplicationLayer(int fd)
 void ApplicationLayer::ClientHandling()
 {
     PacketStructure *Packet = (PacketStructure*)r_Buffer;
-    
+
     while(serverStatus && userID != -1)
     {
         if(recv(userConnection, r_Buffer, PacketSize, 0) <= 0)

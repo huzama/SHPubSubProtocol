@@ -9,7 +9,7 @@
 
 Node *updateQueue;    
 ApplicationLayer *userObjects[26];
-extern int serverStatus;
+extern bool serverStatus;
 
 Broker::Broker()
 {
